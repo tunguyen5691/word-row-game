@@ -1,488 +1,681 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đố Kinh Thánh</title>
-    <link rel="stylesheet" href="./index.css" />
-  </head>
-  <body>
-    <main class="app">
-      <section class="game">
-        <h1>Đố Kinh Thánh</h1>
-        <p>Nhấn vào từng ô để mở chữ cái.</p>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đố Kinh Thánh</title>
+  <link rel="stylesheet" href="./index.css" />
+</head>
+
+<body>
+  <main class="app">
+    <button id="finalAnswerButton" type="button" class="final-answer-button"
+      aria-label="Hiện đáp án cuối">
+      <img src="./assets/images/check.png" alt="" />
+    </button>
+    <section class="game">
+      <div class="header">
+        <div class="wrap">
+
+          <h1 class="title">Giải Đố Ô Chữ</h1>
+          <div class="word-select"></div>
+
+        </div>
+      </div>
+      <div class="crossword-wrapper">
         <section id="crossword" class="crossword"></section>
-      </section>
-      <aside class="hint-panel">
-        <div class="hint-panel__header">
-          <h2 id="hintPanelTitle" class="hint-panel__title">Gợi ý</h2>
-          <button id="hintPanelClose" type="button" class="hint-panel__close">
-            Đóng
-          </button>
-        </div>
-        <div id="hintPanelBody" class="hint-panel__body">
-          <p class="hint-panel__empty">
-            Bấm vào hình 1.png ở mỗi hàng để xem gợi ý.
-          </p>
-        </div>
-        <button id="hintPanelNext" type="button" class="hint-panel__next" disabled>
-          Mở gợi ý tiếp
+      </div>
+    </section>
+    <aside class="hint-panel">
+      <div class="hint-panel__header">
+        <button id="hintPanelClose" type="button" class="hint-panel__close">
+          Đóng
         </button>
-      </aside>
-    </main>
+        <h2 id="hintPanelTitle" class="hint-panel__title">Gợi ý</h2>
+      </div>
+      <div id="hintPanelBody" class="hint-panel__body">
+        <p class="hint-panel__empty">
+          Bấm vào hình 1.png ở mỗi hàng để xem gợi ý.sss
+        </p>
+      </div>
+      <button id="hintPanelNext" type="button" class="hint-panel__next row-tail-image row-tail-image--action is-visible"
+        disabled>
+        Mở gợi ý tiếp
+      </button>
+    </aside>
+  </main>
 
-    <script>
-      const app = document.querySelector(".app");
-      const phrases = [
-        ["SỰ THÁNH KHIẾT", 3],
-        ["TÔN TRỌNG", 1],
-        ["CHUNG THỦY", 3],
-        ["NGOẠI TÌNH", 7],
-        ["CHỐN KHUÊ PHÒNG", 5],
-        ["NGƯỜI PHỐI NGẪU", 11],
-        ["ĐOÁN PHẠT", 3],
-      ];
-      const hintsByRow = [
-        {
-          items: [
-            {
-              type: "text",
-              content: "Đây là 1 bản tính cốt lõi của Đức Chúa Trời.",
-            },
-            { type: "text", content: "Tách biệt khỏi mọi sự ô uế." },
-          ],
-        },
-        {
-          items: [
-            {
-              type: "image",
-              src: "./assets/images/tontrong.jpeg",
-              alt: "Gợi ý Tôn trọng",
-            },
-            {
-              type: "text",
-              content:
-                "Đây là thứ không thể đòi hỏi hay ép buộc mà chỉ có thể nhận được thông qua cách bạn đối xử với người khác",
-            },
-          ],
-        },
-        {
-          items: [
-            {
-              type: "image",
-              src: "./assets/images/chungthuy.jpg",
-              alt: "Gợi ý Chung Thủy",
-            },
-            {
-              type: "text",
-              content:
-                "Đây là một đức tính nền tảng trong tình yêu và hôn nhân, tượng trưng cho sự gắn bó trước sau như một",
-            },
-          ],
-        },
-        {
-          items: [
-            {
-              type: "image",
-              src: "./assets/images/ngoai.jpg",
-              alt: "Gợi ý Ngoại",
-            },
-            {
-              type: "image",
-              src: "./assets/images/tinh.jpg",
-              alt: "Gợi ý Tình",
-            },
-          ],
-        },
-        {
-          items: [
-            {
-              type: "text",
-              content:
-                "Đây là nơi bạn dành ít nhất 6 tiếng 1 ngày và nhiều nhất là 24 tiếng 1 ngày tùy nhu cầu",
-            },
-            {
-              type: "image",
-              src: "./assets/images/phongngu.jpg",
-              alt: "Gợi ý Chốn khuê phòng",
-            },
-          ],
-        },
-        {
-          items: [
-            {
-              type: "image",
-              src: "./assets/images/codau.jpeg",
-              alt: "Gợi ý Người phối ngẫu",
-            },
-            {
-              type: "text",
-              content:
-                "Từ này mô tả người sẽ cùng bạn chia sẻ mọi quyền lợi và nghĩa vụ trước pháp luật, là \"nửa kia\" chính thức trên giấy tờ",
-            },
-          ],
-        },
-        {
-          items: [
-            {
-              type: "image",
-              src: "./assets/images/doanphat.jpg",
-              alt: "Gợi ý Đoán phạt",
-            },
-            {
-              type: "text",
-              content:
-                "Đây là hành động nghiêm khắc đến từ Thiên Chúa dành những ai phạm tối nếu không ăn năn, để thể hiện sự công bình của Ngài",
-            },
-          ],
-        },
-      ];
+  <script>
+    const app = document.querySelector(".app");
+    const phrases = [
+      ["SỰ THÁNH KHIẾT", 3],
+      ["TÔN TRỌNG", 1],
+      ["CHUNG THỦY", 3],
+      ["NGOẠI TÌNH", 7],
+      ["CHỐN KHUÊ PHÒNG", 5],
+      ["NGƯỜI PHỐI NGẪU", 11],
+      ["ĐOÁN PHẠT", 3],
+    ];
+    const hintsByRow = [{
+        items: [{
+            type: "text",
+            content: "Đây là 1 bản tính cốt lõi của Đức Chúa Trời.",
+          },
+          {
+            type: "text",
+            content: "Tách biệt khỏi mọi sự ô uế."
+          },
+        ],
+      },
+      {
+        items: [{
+            type: "image",
+            src: "./assets/images/tontrong.jpeg",
+            alt: "Gợi ý Tôn trọng",
+          },
+          {
+            type: "text",
+            content: "Đây là thứ không thể đòi hỏi hay ép buộc mà chỉ có thể nhận được thông qua cách bạn đối xử với người khác",
+          },
+        ],
+      },
+      {
+        items: [{
+            type: "image",
+            src: "./assets/images/chungthuy.jpg",
+            alt: "Gợi ý Chung Thủy",
+          },
+          {
+            type: "text",
+            content: "Đây là một đức tính nền tảng trong tình yêu và hôn nhân, tượng trưng cho sự gắn bó trước sau như một",
+          },
+        ],
+      },
+      {
+        items: [{
+            type: "image",
+            src: "./assets/images/ngoai.jpg",
+            alt: "Gợi ý Ngoại",
+          },
+          {
+            type: "image",
+            src: "./assets/images/tinh.jpg",
+            alt: "Gợi ý Tình",
+          },
+        ],
+      },
+      {
+        items: [{
+            type: "text",
+            content: "Đây là nơi bạn dành ít nhất 6 tiếng 1 ngày và nhiều nhất là 24 tiếng 1 ngày tùy nhu cầu",
+          },
+          {
+            type: "image",
+            src: "./assets/images/phongngu.jpg",
+            alt: "Gợi ý Chốn khuê phòng",
+          },
+        ],
+      },
+      {
+        items: [{
+            type: "image",
+            src: "./assets/images/codau.jpeg",
+            alt: "Gợi ý Người phối ngẫu",
+          },
+          {
+            type: "text",
+            content: "Từ này mô tả người sẽ cùng bạn chia sẻ mọi quyền lợi và nghĩa vụ trước pháp luật, là \"nửa kia\" chính thức trên giấy tờ",
+          },
+        ],
+      },
+      {
+        items: [{
+            type: "image",
+            src: "./assets/images/doanphat.jpg",
+            alt: "Gợi ý Đoán phạt",
+          },
+          {
+            type: "text",
+            content: "Đây là hành động nghiêm khắc đến từ Thiên Chúa dành những ai phạm tối nếu không ăn năn, để thể hiện sự công bình của Ngài",
+          },
+        ],
+      },
+    ];
 
-      const crossword = document.getElementById("crossword");
-      const hintPanel = document.querySelector(".hint-panel");
-      const hintPanelTitle = document.getElementById("hintPanelTitle");
-      const hintPanelBody = document.getElementById("hintPanelBody");
-      const hintPanelNext = document.getElementById("hintPanelNext");
-      const hintPanelClose = document.getElementById("hintPanelClose");
-      const longWordIndexes = [0, 4, 5];
-      let activeHints = [];
-      let revealedHintCount = 0;
-      let activeRowIndex = null;
-      let selectedRowIndex = null;
-      const revealedCellsByRow = {};
-      const completedRows = {};
-      const rowControls = [];
+    const crossword = document.getElementById("crossword");
+    const header = document.querySelector(".header");
+    const wordSelect = document.querySelector(".word-select");
+    const finalAnswerButton = document.getElementById("finalAnswerButton");
+    const hintPanel = document.querySelector(".hint-panel");
+    const hintPanelTitle = document.getElementById("hintPanelTitle");
+    const hintPanelBody = document.getElementById("hintPanelBody");
+    const hintPanelNext = document.getElementById("hintPanelNext");
+    const hintPanelClose = document.getElementById("hintPanelClose");
+    const longWordPhrases = new Set([
+      "SỰ THÁNH KHIẾT",
+      "CHỐN KHUÊ PHÒNG",
+      "NGƯỜI PHỐI NGẪU",
+    ]);
+    const gapPositionsByPhrase = {
+      "SỰ THÁNH KHIẾT": [2, 7],
+      "TÔN TRỌNG": [3],
+      "CHUNG THỦY": [5],
+      "NGOẠI TÌNH": [5],
+      "CHỐN KHUÊ PHÒNG": [4, 8],
+      "NGƯỜI PHỐI NGẪU": [5, 9],
+      "ĐOÁN PHẠT": [4],
+    };
+    const finalAnswerLetters = ["H", "Ô", "N", "N", "H", "Â", "N"];
+    let activeHints = [];
+    let revealedHintCount = 0;
+    let activeRowIndex = null;
+    let selectedRowIndex = null;
+    const revealedCellsByRow = {};
+    const completedRows = {};
+    let answeredRowsCount = 0;
+    const rowControls = [];
+    const selectButtons = [];
+    /** Chỉ hiện nút Đáp án sau khi gợi ý đầu tiên đã được render trong panel */
+    const firstHintShownByRow = {};
 
-      const getRequiredOpenCount = (rowIndex) =>
-        longWordIndexes.includes(rowIndex) ? 3 : 2;
-      const toPlainChar = (char) =>
-        char
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D");
+    const getRequiredOpenCount = (rowIndex) =>
+      longWordPhrases.has(rowsData[rowIndex]?.phrase) ? 2 : 1;
+    const toPlainChar = (char) =>
+      char
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
+    const shuffleArray = (array) => {
+      for (let index = array.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [array[index], array[randomIndex]] = [array[randomIndex], array[index]];
+      }
+    };
+    const rowsData = phrases.map(([phrase, keyLetterPosition], index) => ({
+      phrase,
+      keyLetterPosition,
+      hints: hintsByRow[index]?.items || [],
+    }));
+    shuffleArray(rowsData);
 
-      const renderHintItem = (hint) => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "hint-item";
+    const renderHintItem = (hint) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "hint-item";
 
-        if (hint.type === "image") {
-          const image = document.createElement("img");
-          image.className = "hint-item__media";
-          image.src = hint.src;
-          image.alt = hint.alt || "Hình gợi ý";
-          wrapper.appendChild(image);
-          return wrapper;
-        }
-
-        if (hint.type === "video") {
-          const video = document.createElement("video");
-          video.className = "hint-item__media";
-          video.src = hint.src;
-          video.controls = true;
-          if (hint.poster) {
-            video.poster = hint.poster;
-          }
-          wrapper.appendChild(video);
-          return wrapper;
-        }
-
-        const text = document.createElement("p");
-        text.className = "hint-item__text";
-        text.textContent = hint.content || "";
-        wrapper.appendChild(text);
+      if (hint.type === "image") {
+        const image = document.createElement("img");
+        image.className = "hint-item__media";
+        image.src = hint.src;
+        image.alt = hint.alt || "Hình gợi ý";
+        wrapper.appendChild(image);
         return wrapper;
-      };
+      }
 
-      const updateHintProgress = () => {
-        const requiredOpenCount = getRequiredOpenCount(activeRowIndex);
-        const currentOpenCount = revealedCellsByRow[activeRowIndex] || 0;
-        const isLockedByOpenRule = currentOpenCount < requiredOpenCount;
-        const noMoreHints = revealedHintCount >= activeHints.length;
-        hintPanelNext.disabled = isLockedByOpenRule || noMoreHints;
-      };
-
-      const revealFirstHintWhenEligible = (rowIndex) => {
-        if (activeRowIndex !== rowIndex || revealedHintCount > 0 || activeHints.length === 0) {
-          return;
+      if (hint.type === "video") {
+        const video = document.createElement("video");
+        video.className = "hint-item__media";
+        video.src = hint.src;
+        video.controls = true;
+        if (hint.poster) {
+          video.poster = hint.poster;
         }
+        wrapper.appendChild(video);
+        return wrapper;
+      }
 
-        const requiredOpenCount = getRequiredOpenCount(rowIndex);
-        if ((revealedCellsByRow[rowIndex] || 0) < requiredOpenCount) {
-          return;
-        }
+      const text = document.createElement("p");
+      text.className = "hint-item__text";
+      text.textContent = hint.content || "";
+      wrapper.appendChild(text);
+      return wrapper;
+    };
 
-        const emptyGuide = hintPanelBody.querySelector(".hint-panel__empty");
-        if (emptyGuide) {
-          emptyGuide.remove();
-        }
-        hintPanelBody.appendChild(renderHintItem(activeHints[0]));
-        revealedHintCount = 1;
-      };
+    const updateHintProgress = () => {
+      const requiredOpenCount = getRequiredOpenCount(activeRowIndex);
+      const currentOpenCount = revealedCellsByRow[activeRowIndex] || 0;
+      const isLockedByOpenRule = currentOpenCount < requiredOpenCount;
+      const noMoreHints = revealedHintCount >= activeHints.length;
+      hintPanelNext.disabled = isLockedByOpenRule || noMoreHints;
+    };
 
-      const openHintPanel = (rowIndex) => {
-        if (activeRowIndex === rowIndex && hintPanelBody.children.length > 0) {
-          app.classList.add("app--hint-open");
-          return;
-        }
+    const refreshRevealAnswerButton = (rowIndex) => {
+      const controls = rowControls[rowIndex];
+      if (!controls || completedRows[rowIndex]) {
+        return;
+      }
+      const show = Boolean(firstHintShownByRow[rowIndex]);
+      controls.revealAllButton.classList.toggle("is-visible", show);
+      controls.revealAllButton.disabled = !show;
+    };
 
-        const rowHint = hintsByRow[rowIndex] || { items: [] };
-        const requiredOpenCount = getRequiredOpenCount(rowIndex);
-        const currentOpenCount = revealedCellsByRow[rowIndex] || 0;
-        activeHints = rowHint.items || [];
-        revealedHintCount = 0;
-        activeRowIndex = rowIndex;
-        hintPanelBody.innerHTML = "";
-        hintPanelTitle.textContent = `Gợi ý cho ô chữ số ${rowIndex + 1}`;
+    const revealFirstHintWhenEligible = (rowIndex) => {
+      if (activeRowIndex !== rowIndex || revealedHintCount > 0 || activeHints.length === 0) {
+        return;
+      }
 
-        const guide = document.createElement("p");
-        guide.className = "hint-panel__empty";
-        guide.textContent = `Bạn được mở ${requiredOpenCount} ô chữ.`;
-        hintPanelBody.appendChild(guide);
+      const requiredOpenCount = getRequiredOpenCount(rowIndex);
+      if ((revealedCellsByRow[rowIndex] || 0) < requiredOpenCount) {
+        return;
+      }
 
-        revealFirstHintWhenEligible(rowIndex);
-        updateHintProgress();
+      const emptyGuide = hintPanelBody.querySelector(".hint-panel__empty");
+      if (emptyGuide) {
+        emptyGuide.remove();
+      }
+      hintPanelBody.appendChild(renderHintItem(activeHints[0]));
+      revealedHintCount = 1;
+      firstHintShownByRow[rowIndex] = true;
+      refreshRevealAnswerButton(rowIndex);
+    };
+
+    const openHintPanel = (rowIndex) => {
+      if (activeRowIndex === rowIndex && hintPanelBody.children.length > 0) {
         app.classList.add("app--hint-open");
+        return;
+      }
+
+      const rowHint = rowsData[rowIndex] || {
+        hints: []
       };
+      const requiredOpenCount = getRequiredOpenCount(rowIndex);
+      const currentOpenCount = revealedCellsByRow[rowIndex] || 0;
+      activeHints = rowHint.hints || [];
+      revealedHintCount = 0;
+      activeRowIndex = rowIndex;
+      hintPanelBody.innerHTML = "";
+      hintPanelTitle.textContent = `Gợi ý cho ô chữ số ${rowIndex + 1}`;
 
-      const lockOtherRows = (targetRowIndex) => {
-        app.classList.add("app--row-active");
-        rowControls.forEach((controls, index) => {
-          if (index === targetRowIndex) {
-            controls.rowElement.classList.add("word-row--active");
-            return;
-          }
+      const guide = document.createElement("p");
+      guide.className = "hint-panel__empty";
+      guide.textContent = `Bạn được mở ${requiredOpenCount} ô chữ.`;
+      hintPanelBody.appendChild(guide);
 
-          controls.rowElement.classList.add("word-row--locked");
-          controls.tailImage.disabled = true;
-          controls.revealAllButton.disabled = true;
-          controls.revealAllButton.classList.remove("is-visible");
-          controls.rowCells.forEach((cell) => {
-            cell.disabled = true;
-          });
-        });
-      };
+      revealFirstHintWhenEligible(rowIndex);
+      if (activeHints.length === 0) {
+        firstHintShownByRow[rowIndex] = true;
+        refreshRevealAnswerButton(rowIndex);
+      }
+      updateHintProgress();
+      app.classList.add("app--hint-open");
+    };
 
-      const unlockRemainingRows = () => {
-        app.classList.remove("app--row-active");
-        rowControls.forEach((controls, index) => {
-          controls.rowElement.classList.remove("word-row--locked");
-
-          if (completedRows[index]) {
-            controls.revealAllButton.classList.remove("is-visible");
-            return;
-          }
-
-          controls.tailImage.disabled = false;
-          controls.revealAllButton.disabled = true;
-          controls.revealAllButton.classList.remove("is-visible");
-          controls.rowCells.forEach((cell) => {
-            if (!cell.classList.contains("is-revealed")) {
-              cell.disabled = false;
-              cell.classList.add("cell--locked");
-            }
-          });
-        });
-      };
-
-      phrases.forEach(([phrase, keyLetterPosition], rowIndex) => {
-        revealedCellsByRow[rowIndex] = 0;
-        completedRows[rowIndex] = false;
-        const row = document.createElement("div");
-        row.className = "word-row";
-        row.setAttribute("aria-label", `Hàng ${rowIndex + 1}: ${phrase}`);
-        const rowCells = [];
-
-        const order = document.createElement("span");
-        order.className = "row-order";
-        order.textContent = `${rowIndex + 1}`;
-        row.appendChild(order);
-
-        Array.from(phrase.replaceAll(" ", "")).forEach((char, charIndex) => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "cell cell--locked";
-          button.dataset.charAccent = char;
-          button.dataset.charPlain = toPlainChar(char);
-          button.setAttribute("aria-label", "Ô chữ chưa mở");
-          button.textContent = "";
-
-          if (charIndex === keyLetterPosition) {
-            button.dataset.isKey = "true";
-          }
-
-          button.addEventListener("click", () => {
-            if (selectedRowIndex !== rowIndex || button.classList.contains("cell--locked")) {
-              return;
-            }
-
-            button.textContent = button.dataset.charPlain;
-            button.classList.add("is-revealed");
-            button.disabled = true;
-            button.setAttribute("aria-label", `Đã mở: ${button.dataset.charPlain}`);
-            revealedCellsByRow[rowIndex] += 1;
-
-            if (activeRowIndex === rowIndex) {
-              const requiredOpenCount = getRequiredOpenCount(rowIndex);
-              const guide = hintPanelBody.querySelector(".hint-panel__empty");
-              if (guide) {
-                guide.textContent = `Bạn được mở ${requiredOpenCount} ô chữ.`;
-              }
-              revealFirstHintWhenEligible(rowIndex);
-              updateHintProgress();
-            }
-          });
-
-          rowCells.push(button);
-          row.appendChild(button);
-        });
-
-        const tailImage = document.createElement("button");
-        tailImage.type = "button";
-        tailImage.className = "row-tail-image row-tail-image--hint";
-        tailImage.setAttribute("aria-label", `Xem gợi ý hàng ${rowIndex + 1}`);
-
-        const hintIcon = document.createElement("img");
-        hintIcon.src = "./assets/images/1.png";
-        hintIcon.alt = "";
-        tailImage.appendChild(hintIcon);
-        const activateRow = () => {
-          if (selectedRowIndex === null) {
-            selectedRowIndex = rowIndex;
-            lockOtherRows(rowIndex);
-            revealAllButton.disabled = false;
-            revealAllButton.classList.add("is-visible");
-            rowCells.forEach((cell) => {
-              cell.classList.remove("cell--locked");
-            });
-          }
-
-          if (selectedRowIndex !== rowIndex) {
-            return;
-          }
-
-          openHintPanel(rowIndex);
-        };
-
-        tailImage.addEventListener("click", () => {
-          activateRow();
-        });
-
-        row.addEventListener("click", (event) => {
-          const clickedCell = event.target.closest(".cell");
-          const clickedHint = event.target.closest(".row-tail-image--hint");
-          const clickedAnswer = event.target.closest(".row-tail-image--action");
-          if (clickedCell || clickedHint || clickedAnswer) {
-            return;
-          }
-
-          activateRow();
-        });
-        row.appendChild(tailImage);
-
-        const revealAllButton = document.createElement("button");
-        revealAllButton.type = "button";
-        revealAllButton.className = "row-tail-image row-tail-image--action";
-        revealAllButton.disabled = true;
-        revealAllButton.setAttribute(
-          "aria-label",
-          `Mở toàn bộ đáp án hàng ${rowIndex + 1}`,
-        );
-        revealAllButton.textContent = "Đáp án";
-
-        revealAllButton.addEventListener("click", () => {
-          app.classList.remove("app--hint-open");
-
-          rowCells.forEach((cell) => {
-            if (!cell.disabled) {
-              cell.click();
-            }
-            cell.textContent = cell.dataset.charAccent;
-            cell.setAttribute("aria-label", `Đã mở: ${cell.dataset.charAccent}`);
-          });
-
-          setTimeout(() => {
-            rowCells.forEach((cell) => {
-              if (cell.dataset.isKey === "true") {
-                cell.classList.add("cell--key");
-              }
-            });
-          }, 1000);
-
-          tailImage.disabled = true;
-          revealAllButton.disabled = true;
-          row.classList.add("word-row--completed");
-          rowCells.forEach((cell) => {
-            cell.classList.add("cell--locked");
-          });
-          completedRows[rowIndex] = true;
-        });
-
-        row.appendChild(revealAllButton);
-
-        rowControls.push({
-          rowElement: row,
-          rowCells,
-          tailImage,
-          revealAllButton,
-        });
-
-        crossword.appendChild(row);
-      });
-
-      hintPanelNext.addEventListener("click", () => {
-        if (revealedHintCount >= activeHints.length) {
+    const lockOtherRows = (targetRowIndex) => {
+      app.classList.add("app--row-active");
+      rowControls.forEach((controls, index) => {
+        if (index === targetRowIndex) {
+          controls.rowElement.classList.add("word-row--active");
           return;
         }
 
-        const hint = activeHints[revealedHintCount];
-        const emptyGuide = hintPanelBody.querySelector(".hint-panel__empty");
-        if (emptyGuide) {
-          emptyGuide.remove();
+        controls.rowElement.classList.add("word-row--locked");
+        controls.revealHintButton.disabled = true;
+        controls.revealHintButton.classList.remove("is-visible");
+        controls.revealAllButton.disabled = true;
+        controls.revealAllButton.classList.remove("is-visible");
+        controls.rowCells.forEach((cell) => {
+          cell.disabled = true;
+        });
+      });
+    };
+
+    const unlockRemainingRows = () => {
+      app.classList.remove("app--row-active");
+      rowControls.forEach((controls, index) => {
+        controls.rowElement.classList.remove("word-row--locked");
+
+        if (completedRows[index]) {
+          controls.revealHintButton.classList.remove("is-visible");
+          controls.revealAllButton.classList.remove("is-visible");
+          return;
         }
-        hintPanelBody.appendChild(renderHintItem(hint));
-        revealedHintCount += 1;
-        updateHintProgress();
+
+        controls.revealHintButton.disabled = true;
+        controls.revealHintButton.classList.remove("is-visible");
+        controls.revealAllButton.disabled = true;
+        controls.revealAllButton.classList.remove("is-visible");
+        controls.rowCells.forEach((cell) => {
+          if (!cell.classList.contains("is-revealed")) {
+            cell.disabled = false;
+            cell.classList.add("cell--locked");
+          }
+        });
+      });
+    };
+    const setActiveSelectButton = (rowIndex) => {
+      selectButtons.forEach((button, index) => {
+        button.classList.toggle("is-active", index === rowIndex);
+      });
+    };
+    const showOnlySelectedRow = (rowIndex) => {
+      rowControls.forEach((controls, index) => {
+        controls.rowWrapper.classList.toggle("word-row--hidden", index !== rowIndex);
+      });
+    };
+    const revealFinalAnswer = () => {
+      selectButtons.forEach((button) => {
+        button.classList.remove("is-final-answer-spaced");
+      });
+      finalAnswerLetters.forEach((letter, index) => {
+        const button = selectButtons[index];
+        if (!button) {
+          return;
+        }
+        setTimeout(() => {
+          button.textContent = letter;
+          button.classList.add("is-key-char", "is-final-answer-animate");
+          button.disabled = true;
+          button.setAttribute("aria-label", `Ký tự đáp án ${index + 1}: ${letter}`);
+          setTimeout(() => {
+            button.classList.remove("is-final-answer-animate");
+          }, 480);
+        }, index * 180);
       });
 
-      hintPanelClose.addEventListener("click", () => {
+      setTimeout(() => {
+        const targetButton = selectButtons[2];
+        if (targetButton) {
+          targetButton.classList.add("is-final-answer-spaced");
+        }
+      }, 500);
+    };
+    const selectRow = (rowIndex) => {
+      if (!rowControls[rowIndex]) {
+        return;
+      }
+
+      app.classList.remove("app--select-idle");
+      header.classList.add("top");
+      app.classList.remove("app--hint-open");
+      unlockRemainingRows();
+      selectedRowIndex = rowIndex;
+      lockOtherRows(rowIndex);
+      showOnlySelectedRow(rowIndex);
+      setActiveSelectButton(rowIndex);
+
+      const selectedControls = rowControls[rowIndex];
+      const canReveal = !completedRows[rowIndex];
+      const firstHintReady = Boolean(firstHintShownByRow[rowIndex]);
+      selectedControls.revealHintButton.disabled = !canReveal;
+      selectedControls.revealHintButton.classList.toggle("is-visible", canReveal);
+      selectedControls.revealAllButton.disabled = !canReveal || !firstHintReady;
+      selectedControls.revealAllButton.classList.toggle("is-visible", canReveal && firstHintReady);
+      selectedControls.rowCells.forEach((cell) => {
+        if (!cell.classList.contains("is-revealed")) {
+          cell.classList.remove("cell--locked");
+          cell.disabled = false;
+        }
+      });
+    };
+
+    rowsData.forEach(({
+      phrase,
+      keyLetterPosition
+    }, rowIndex) => {
+      revealedCellsByRow[rowIndex] = 0;
+      completedRows[rowIndex] = false;
+      const row = document.createElement("div");
+      row.className = "word-row";
+      const rowWrapper = document.createElement("div");
+      rowWrapper.className = "word-row-wrapper";
+      row.setAttribute("aria-label", `Hàng ${rowIndex + 1}: ${phrase}`);
+      const rowCells = [];
+      const letterCount = phrase.replaceAll(" ", "").length;
+      const rowInfo = document.createElement("p");
+      rowInfo.className = "word-row__info";
+      rowInfo.textContent = `Ô chữ gồm ${letterCount} chữ cái`;
+
+      Array.from(phrase.replaceAll(" ", "")).forEach((char, charIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "cell cell--locked";
+        button.dataset.charAccent = char;
+        button.dataset.charPlain = toPlainChar(char);
+        button.setAttribute("aria-label", "Ô chữ chưa mở");
+        button.textContent = "";
+
+        if (charIndex === keyLetterPosition) {
+          button.dataset.isKey = "true";
+        }
+
+        button.addEventListener("click", () => {
+          if (selectedRowIndex !== rowIndex || button.classList.contains("cell--locked")) {
+            return;
+          }
+
+          button.textContent = button.dataset.charPlain;
+          button.classList.add("is-revealed");
+          button.disabled = true;
+          button.setAttribute("aria-label", `Đã mở: ${button.dataset.charPlain}`);
+          revealedCellsByRow[rowIndex] += 1;
+
+          if (activeRowIndex === rowIndex) {
+            const requiredOpenCount = getRequiredOpenCount(rowIndex);
+            const guide = hintPanelBody.querySelector(".hint-panel__empty");
+            if (guide) {
+              guide.textContent = `Bạn được mở ${requiredOpenCount} ô chữ.`;
+            }
+            revealFirstHintWhenEligible(rowIndex);
+            updateHintProgress();
+          }
+        });
+
+        rowCells.push(button);
+        row.appendChild(button);
+      });
+
+      const activateRow = () => {
+        if (selectedRowIndex === null) {
+          selectedRowIndex = rowIndex;
+          lockOtherRows(rowIndex);
+          revealHintButton.disabled = false;
+          revealHintButton.classList.add("is-visible");
+          if (firstHintShownByRow[rowIndex]) {
+            revealAllButton.classList.add("is-visible");
+            revealAllButton.disabled = false;
+          } else {
+            revealAllButton.classList.remove("is-visible");
+            revealAllButton.disabled = true;
+          }
+          rowCells.forEach((cell) => {
+            cell.classList.remove("cell--locked");
+          });
+        }
+
+        if (selectedRowIndex !== rowIndex) {
+          return;
+        }
+      };
+
+      row.addEventListener("click", (event) => {
+        const clickedCell = event.target.closest(".cell");
+        const clickedAnswer = event.target.closest(".row-tail-image--action");
+        if (clickedCell || clickedAnswer) {
+          return;
+        }
+
+        activateRow();
+      });
+
+      const revealAllButton = document.createElement("button");
+      revealAllButton.type = "button";
+      revealAllButton.className = "row-tail-image row-tail-image--action";
+      revealAllButton.disabled = true;
+      revealAllButton.setAttribute(
+        "aria-label",
+        `Mở toàn bộ đáp án hàng ${rowIndex + 1}`,
+      );
+      revealAllButton.textContent = "Đáp án";
+
+      const revealHintButton = document.createElement("button");
+      revealHintButton.type = "button";
+      revealHintButton.className =
+        "row-tail-image row-tail-image--action row-tail-image--hint-action";
+      revealHintButton.disabled = true;
+      revealHintButton.setAttribute("aria-label", `Xem gợi ý hàng ${rowIndex + 1}`);
+      revealHintButton.textContent = "Xem gợi ý";
+      revealHintButton.addEventListener("click", () => {
+        activateRow();
+        openHintPanel(rowIndex);
+      });
+
+      const rowActions = document.createElement("div");
+      rowActions.className = "row-actions";
+      rowActions.appendChild(revealHintButton);
+      revealAllButton.addEventListener("click", () => {
         app.classList.remove("app--hint-open");
 
-        if (selectedRowIndex === null) {
-          return;
+        rowCells.forEach((cell) => {
+          if (!cell.disabled) {
+            cell.click();
+          }
+          cell.textContent = cell.dataset.charAccent;
+          cell.setAttribute("aria-label", `Đã mở: ${cell.dataset.charAccent}`);
+        });
+
+        const gapPositions = gapPositionsByPhrase[phrase] || [];
+        gapPositions.forEach((position) => {
+          const cell = rowCells[position - 1];
+          if (cell) {
+            cell.classList.add("cell--word-gap");
+          }
+        });
+
+        setTimeout(() => {
+          rowCells.forEach((cell) => {
+            if (cell.dataset.isKey === "true") {
+              cell.classList.add("cell--key");
+            }
+          });
+
+          const keyCell = rowCells.find((cell) => cell.dataset.isKey === "true");
+          const selectButton = selectButtons[rowIndex];
+          if (keyCell && selectButton) {
+            const keyChar = keyCell.dataset.charPlain || keyCell.dataset.charAccent || "";
+            selectButton.textContent = keyChar;
+            selectButton.classList.add("is-key-char");
+            selectButton.disabled = true;
+            selectButton.setAttribute("aria-label", `Ô chữ số ${rowIndex + 1}: ${keyChar}`);
+          }
+        }, 700);
+
+        revealHintButton.disabled = true;
+        revealHintButton.classList.remove("is-visible");
+        revealAllButton.disabled = true;
+        revealAllButton.classList.remove("is-visible");
+        row.classList.add("word-row--completed");
+        rowCells.forEach((cell) => {
+          cell.classList.add("cell--locked");
+        });
+        if (!completedRows[rowIndex]) {
+          completedRows[rowIndex] = true;
+          answeredRowsCount += 1;
         }
 
-        const openedCount = revealedCellsByRow[selectedRowIndex] || 0;
-        if (openedCount > 0) {
-          return;
+        if (answeredRowsCount === rowsData.length) {
+          setTimeout(() => {
+            crossword.style.display = "none";
+            header.classList.remove("top");
+            header.classList.add("end");
+            finalAnswerButton.classList.add("is-visible");
+            finalAnswerButton.disabled = false;
+          }, 2000);
         }
-
-        const activeRow = rowControls[selectedRowIndex]?.rowElement;
-        if (activeRow) {
-          activeRow.classList.remove("word-row--active");
-        }
-        unlockRemainingRows();
-        selectedRowIndex = null;
       });
 
-      document.addEventListener("click", (event) => {
-        if (selectedRowIndex === null || !completedRows[selectedRowIndex]) {
-          return;
-        }
+      rowActions.appendChild(revealAllButton);
+      rowWrapper.appendChild(rowInfo);
+      rowWrapper.appendChild(row);
+      rowWrapper.appendChild(rowActions);
 
-        const activeRow = rowControls[selectedRowIndex]?.rowElement;
-        if (!activeRow || !activeRow.classList.contains("word-row--active")) {
-          return;
-        }
+      rowControls.push({
+        rowWrapper,
+        rowElement: row,
+        rowCells,
+        revealHintButton,
+        revealAllButton,
+      });
 
-        if (activeRow.contains(event.target) || hintPanel.contains(event.target)) {
-          return;
-        }
+      crossword.appendChild(rowWrapper);
+    });
+    rowsData.forEach((_, rowIndex) => {
+      const selectButton = document.createElement("button");
+      selectButton.type = "button";
+      selectButton.className = "word-select__item";
+      selectButton.textContent = `${rowIndex + 1}`;
+      selectButton.setAttribute("aria-label", `Chọn ô chữ số ${rowIndex + 1}`);
+      selectButton.addEventListener("click", () => {
+        selectRow(rowIndex);
+      });
+      selectButtons.push(selectButton);
+      wordSelect.appendChild(selectButton);
+    });
+    app.classList.add("app--select-idle");
+    header.classList.remove("top");
+    header.classList.remove("end");
+    showOnlySelectedRow(null);
+    setActiveSelectButton(null);
+    finalAnswerButton.classList.remove("is-visible");
+    finalAnswerButton.disabled = true;
+    finalAnswerButton.addEventListener("click", () => {
+      revealFinalAnswer();
+    });
 
+    hintPanelNext.addEventListener("click", () => {
+      if (revealedHintCount >= activeHints.length) {
+        return;
+      }
+
+      const hint = activeHints[revealedHintCount];
+      const emptyGuide = hintPanelBody.querySelector(".hint-panel__empty");
+      if (emptyGuide) {
+        emptyGuide.remove();
+      }
+      hintPanelBody.appendChild(renderHintItem(hint));
+      revealedHintCount += 1;
+      updateHintProgress();
+    });
+
+    hintPanelClose.addEventListener("click", () => {
+      app.classList.remove("app--hint-open");
+
+      if (selectedRowIndex === null) {
+        return;
+      }
+
+      const openedCount = revealedCellsByRow[selectedRowIndex] || 0;
+      if (openedCount > 0) {
+        return;
+      }
+
+      const activeRow = rowControls[selectedRowIndex]?.rowElement;
+      if (activeRow) {
         activeRow.classList.remove("word-row--active");
-        unlockRemainingRows();
-        selectedRowIndex = null;
-      });
-    </script>
-  </body>
+      }
+      unlockRemainingRows();
+      selectedRowIndex = null;
+    });
+
+    document.addEventListener("click", (event) => {
+      if (selectedRowIndex === null || !completedRows[selectedRowIndex]) {
+        return;
+      }
+
+      const activeRow = rowControls[selectedRowIndex]?.rowElement;
+      if (!activeRow || !activeRow.classList.contains("word-row--active")) {
+        return;
+      }
+
+      if (activeRow.contains(event.target) || hintPanel.contains(event.target)) {
+        return;
+      }
+
+      activeRow.classList.remove("word-row--active");
+      unlockRemainingRows();
+      selectedRowIndex = null;
+    });
+  </script>
+</body>
+
 </html>
