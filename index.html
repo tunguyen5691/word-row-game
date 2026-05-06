@@ -460,6 +460,7 @@
         const button = document.createElement("button");
         button.type = "button";
         button.className = "cell cell--locked";
+        button.dataset.cellIndex = `${charIndex + 1}`;
         button.dataset.charAccent = char;
         button.dataset.charPlain = toPlainChar(char);
         button.setAttribute("aria-label", "Ô chữ chưa mở");
