@@ -9,7 +9,7 @@
 </head>
 
 <body>
-  <main class="app">
+  <main class="app app--intro">
     <button id="finalAnswerButton" type="button" class="final-answer-button"
       aria-label="Hiện đáp án cuối">
       <img src="./assets/images/check.png" alt="" />
@@ -17,10 +17,17 @@
     <section class="game">
       <div class="header">
         <div class="wrap">
-
-          <h1 class="title">Giải Đố Ô Chữ</h1>
+          <div class="top">
+            <span class="title">
+              ô chữ hên xui
+            </span>
+            <div class="intro-play-slot">
+              <button type="button" id="introPlayButton" class="intro-play" aria-label="Bắt đầu chơi">
+                <img src="./assets/images/1.png" alt="" />
+              </button>
+            </div>
+          </div>
           <div class="word-select"></div>
-
         </div>
       </div>
       <div class="crossword-wrapper">
@@ -108,7 +115,7 @@
       {
         items: [{
             type: "text",
-            content: "Đây là nơi bạn dành ít nhất 6 tiếng 1 ngày và nhiều nhất là 24 tiếng 1 ngày tùy nhu cầu",
+            content: "Đây là nơi bạn dành ít nhất 1 tiếng 1 ngày và nhiều nhất là 24 tiếng 1 ngày tùy nhu cầu",
           },
           {
             type: "image",
@@ -152,6 +159,12 @@
     const hintPanelBody = document.getElementById("hintPanelBody");
     const hintPanelNext = document.getElementById("hintPanelNext");
     const hintPanelClose = document.getElementById("hintPanelClose");
+    const clickSound = new Audio("./assets/sound/click.wav");
+    clickSound.preload = "auto";
+    const keyCellSound = new Audio("./assets/sound/key-cell.wav");
+    keyCellSound.preload = "auto";
+    const everyGoodSound = new Audio("./assets/sound/everygood.wav");
+    everyGoodSound.preload = "auto";
     const longWordPhrases = new Set([
       "SỰ THÁNH KHIẾT",
       "CHỐN KHUÊ PHÒNG",
@@ -343,6 +356,18 @@
         });
       });
     };
+    const unlockRowCellsForInteraction = (rowIndex) => {
+      const controls = rowControls[rowIndex];
+      if (!controls) {
+        return;
+      }
+      controls.rowCells.forEach((cell) => {
+        if (!cell.classList.contains("is-revealed")) {
+          cell.classList.remove("cell--locked");
+          cell.disabled = false;
+        }
+      });
+    };
     const setActiveSelectButton = (rowIndex) => {
       selectButtons.forEach((button, index) => {
         button.classList.toggle("is-active", index === rowIndex);
@@ -364,7 +389,12 @@
         }
         setTimeout(() => {
           button.textContent = letter;
+          const wasKeyChar = button.classList.contains("is-key-char");
           button.classList.add("is-key-char", "is-final-answer-animate");
+          if (!wasKeyChar) {
+            keyCellSound.currentTime = 0;
+            keyCellSound.play().catch(() => {});
+          }
           button.disabled = true;
           button.setAttribute("aria-label", `Ký tự đáp án ${index + 1}: ${letter}`);
           setTimeout(() => {
@@ -378,7 +408,7 @@
         if (targetButton) {
           targetButton.classList.add("is-final-answer-spaced");
         }
-      }, 500);
+      }, 1000);
     };
     const selectRow = (rowIndex) => {
       if (!rowControls[rowIndex]) {
@@ -403,8 +433,8 @@
       selectedControls.revealAllButton.classList.toggle("is-visible", canReveal && firstHintReady);
       selectedControls.rowCells.forEach((cell) => {
         if (!cell.classList.contains("is-revealed")) {
-          cell.classList.remove("cell--locked");
-          cell.disabled = false;
+          cell.classList.add("cell--locked");
+          cell.disabled = true;
         }
       });
     };
@@ -444,6 +474,9 @@
             return;
           }
 
+          clickSound.currentTime = 0;
+          clickSound.play().catch(() => {});
+
           button.textContent = button.dataset.charPlain;
           button.classList.add("is-revealed");
           button.disabled = true;
@@ -478,9 +511,6 @@
             revealAllButton.classList.remove("is-visible");
             revealAllButton.disabled = true;
           }
-          rowCells.forEach((cell) => {
-            cell.classList.remove("cell--locked");
-          });
         }
 
         if (selectedRowIndex !== rowIndex) {
@@ -517,6 +547,7 @@
       revealHintButton.textContent = "Xem gợi ý";
       revealHintButton.addEventListener("click", () => {
         activateRow();
+        unlockRowCellsForInteraction(rowIndex);
         openHintPanel(rowIndex);
       });
 
@@ -524,6 +555,7 @@
       rowActions.className = "row-actions";
       rowActions.appendChild(revealHintButton);
       revealAllButton.addEventListener("click", () => {
+        unlockRowCellsForInteraction(rowIndex);
         app.classList.remove("app--hint-open");
 
         rowCells.forEach((cell) => {
@@ -554,7 +586,12 @@
           if (keyCell && selectButton) {
             const keyChar = keyCell.dataset.charPlain || keyCell.dataset.charAccent || "";
             selectButton.textContent = keyChar;
+            const wasKeyChar = selectButton.classList.contains("is-key-char");
             selectButton.classList.add("is-key-char");
+            if (!wasKeyChar) {
+              keyCellSound.currentTime = 0;
+              keyCellSound.play().catch(() => {});
+            }
             selectButton.disabled = true;
             selectButton.setAttribute("aria-label", `Ô chữ số ${rowIndex + 1}: ${keyChar}`);
           }
@@ -611,6 +648,49 @@
       selectButtons.push(selectButton);
       wordSelect.appendChild(selectButton);
     });
+    const introPlayButton = document.getElementById("introPlayButton");
+    const introPlaySlot = introPlayButton?.closest(".intro-play-slot");
+    if (introPlayButton && introPlaySlot) {
+      introPlayButton.addEventListener("click", () => {
+        if (introPlayButton.classList.contains("intro-play--exit")) {
+          return;
+        }
+        introPlayButton.disabled = true;
+        introPlayButton.classList.add("intro-play--exit");
+        introPlaySlot.classList.add("intro-play-slot--exit");
+
+        let introHideDone = false;
+        const runAfterPlayShrink = () => {
+          if (introHideDone) {
+            return;
+          }
+          introHideDone = true;
+          introPlaySlot.removeEventListener("transitionend", onSlotTransitionEnd);
+          introPlayButton.setAttribute("aria-hidden", "true");
+          app.classList.remove("app--intro");
+          wordSelect.classList.add("word-select--intro-reveal");
+          wordSelect.addEventListener(
+            "animationend",
+            (event) => {
+              if (event.animationName !== "wordSelectFadeIn") {
+                return;
+              }
+              wordSelect.classList.remove("word-select--intro-reveal");
+            },
+            { once: true },
+          );
+        };
+
+        const onSlotTransitionEnd = (event) => {
+          if (event.target !== introPlaySlot || event.propertyName !== "max-width") {
+            return;
+          }
+          runAfterPlayShrink();
+        };
+        introPlaySlot.addEventListener("transitionend", onSlotTransitionEnd);
+        window.setTimeout(runAfterPlayShrink, 700);
+      });
+    }
     app.classList.add("app--select-idle");
     header.classList.remove("top");
     header.classList.remove("end");
@@ -620,6 +700,10 @@
     finalAnswerButton.disabled = true;
     finalAnswerButton.addEventListener("click", () => {
       revealFinalAnswer();
+      window.setTimeout(() => {
+        everyGoodSound.currentTime = 0;
+        everyGoodSound.play().catch(() => {});
+      }, 1000);
     });
 
     hintPanelNext.addEventListener("click", () => {
